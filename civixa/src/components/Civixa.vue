@@ -109,8 +109,9 @@ export default {
     mouseUp () {
       this.drag = false
       // console.log(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
-      if(this.square)
-      this.saveShapes(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
+      if (this.square) {
+        this.saveShapes(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
+      }
     },
     mouseMove (e) {
       if (this.drag && this.square) {
@@ -123,7 +124,6 @@ export default {
     },
     draw () {
       this.ctx.strokeRect(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
-
     },
     canvasLoad () {
       this.c = document.getElementById('myCanvas')
