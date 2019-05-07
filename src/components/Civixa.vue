@@ -2,7 +2,7 @@
   <div class='container-fluid'>
     <b-row>
       <b-col>
-        <canvas id='myCanvas' width='960' height='640' style='border:1px solid #d3d3d3'>
+        <canvas id='myCanvas' style='border:1px solid #d3d3d3'>
           Your browser does not support the HTML5 canvas tag.
         </canvas>
       </b-col>
@@ -64,6 +64,8 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
+      canWidth: '',
+      canHeight: '',
       rect: {},
       circ: {},
       drag: false,
@@ -87,13 +89,17 @@ export default {
     this.c = document.getElementById('myCanvas')
     this.ctx = this.c.getContext('2d')
     this.img = new Image()
-    this.img.src = 'https://wonderfulengineering.com/wp-content/uploads/2016/01/Desktop-Wallpaper-4.jpg'
+    this.img.src = 'https://www.wallpaperup.com/uploads/wallpapers/2017/02/23/1079298/b6b7d1aa8b27bd412d693151d4e7d610-700.jpg'
+    this.canWidth = this.img.width
+    this.canHeight = this.img.height
     setTimeout(() => {
+      this.c.width = this.canWidth
+      this.c.height = this.canHeight
       this.ctx.drawImage(this.img, 0, 0)
       this.shapesCreated.rectangle.forEach(s => {
         this.drawRectange(s.x, s.y, s.width, s.height)
       })
-    }, 400)
+    }, 500)
     this.c.addEventListener('mousedown', this.mouseDown, false)
     this.c.addEventListener('mouseup', this.mouseUp, false)
     this.c.addEventListener('mousemove', this.mouseMove, false)
@@ -168,7 +174,7 @@ export default {
       this.c = document.getElementById('myCanvas')
       this.ctx = this.c.getContext('2d')
       this.img = new Image()
-      this.img.src = 'https://wonderfulengineering.com/wp-content/uploads/2016/01/Desktop-Wallpaper-4.jpg'
+      this.img.src = 'https://www.wallpaperup.com/uploads/wallpapers/2017/02/23/1079298/b6b7d1aa8b27bd412d693151d4e7d610-700.jpg'
       setTimeout(() => {
         this.ctx.drawImage(this.img, 0, 0)
         this.shapesCreated.rectangle.forEach(s => {
