@@ -64,6 +64,7 @@ export default {
   data () {
     return {
       rect: {},
+      circ: {},
       drag: false,
       square: false,
       circle: false,
@@ -102,15 +103,24 @@ export default {
   },
   methods: {
     mouseDown (e) {
-      this.rect.startX = e.pageX - this.c.offsetLeft
-      this.rect.startY = e.pageY - this.c.offsetTop
-      this.drag = true
+      if (this.square) {
+        this.rect.startX = e.pageX - this.c.offsetLeft
+        this.rect.startY = e.pageY - this.c.offsetTop
+        this.drag = true
+      } else if (this.circle) {
+        this.circ.startX = e.pageX - this.c.offsetLeft
+        this.circ.startY = e.pageY - this.c.offsetTop
+        this.drag = true
+      }
     },
     mouseUp () {
       this.drag = false
       // console.log(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
       if (this.square) {
         this.saveShapes(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
+      }
+      if (this.circle) {
+        this.saveShapes(this.circ.startX, this.circ.startY, this.circ.w, this.circ.h)
       }
     },
     mouseMove (e) {
@@ -123,7 +133,11 @@ export default {
       }
     },
     draw () {
-      this.ctx.strokeRect(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
+      if (this.square) {
+        this.ctx.strokeRect(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
+      } else if (this.circle) {
+        this.ctx.strokeArc(this.circ.startX, this.circ.startY, this.circ.w, this.circ.h)
+      }
     },
     canvasLoad () {
       this.c = document.getElementById('myCanvas')
