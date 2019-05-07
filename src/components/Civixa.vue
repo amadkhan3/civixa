@@ -7,10 +7,11 @@
         </canvas>
       </b-col>
       <b-col>
-      <div class="mt-5">
-          <b-button size="md" variant="success" @click='shapeSelector("square")'>Square</b-button>
-          <b-button size="md" variant="success" @click='shapeSelector("circle")'>Circle</b-button>
-          <b-button size="md" variant="" @click='shapeSelector("clear")'>Clear Selection</b-button>
+      <div class="mt-3">
+          <b-button size="sm" variant="success" @click='shapeSelector("square")'>Square</b-button>
+          <b-button size="sm" variant="success" @click='shapeSelector("circle")'>Circle</b-button>
+          <b-button size="sm" variant="" @click='shapeSelector("clear")'>Clear Selection</b-button>
+          <b-button size="sm" variant="danger" @click='clear'>Clear Canvas</b-button>
           <!-- <b-button size="md" variant="" @click='removeShape'>Remove</b-button> -->
       </div>
       <!-- <div v-if="square">
@@ -102,6 +103,11 @@ export default {
     // }, false)
   },
   methods: {
+    clear () {
+      this.shapesCreated.rectangle = []
+      this.shapesCreated.circle = []
+      this.canvasLoad()
+    },
     mouseDown (e) {
       if (this.square) {
         this.rect.startX = e.pageX - this.c.offsetLeft
@@ -120,7 +126,7 @@ export default {
         this.saveShapes(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
       }
       if (this.circle) {
-        this.saveShapes(this.circ.startX, this.circ.startY, this.circ.w, this.circ.h)
+        this.saveShapes(this.circ.startX, this.circ.startY, this.circ.endX, this.circ.endY)
       }
     },
     mouseMove (e) {
@@ -129,14 +135,33 @@ export default {
         this.rect.h = (e.pageY - this.c.offsetTop) - this.rect.startY
         this.ctx.clearRect(0, 0, this.c.width, this.c.height)
         this.ctx.drawImage(this.img, 0, 0)
+        this.shapesCreated.rectangle.forEach(s => {
+          this.drawRectange(s.x, s.y, s.width, s.height)
+        })
+        this.shapesCreated.circle.forEach(s => {
+          this.drawCircle(s.x, s.y, s.ex, s.ey)
+        })
+        this.draw()
+      } else if (this.drag && this.circle) {
+        this.circ.endX = e.pageX - this.c.offsetLeft
+        this.circ.endY = e.pageY - this.c.offsetTop
+        this.ctx.clearRect(0, 0, this.c.width, this.c.height)
+        this.ctx.drawImage(this.img, 0, 0)
+        this.shapesCreated.rectangle.forEach(s => {
+          this.drawRectange(s.x, s.y, s.width, s.height)
+        })
+        this.shapesCreated.circle.forEach(s => {
+          this.drawCircle(s.x, s.y, s.ex, s.ey)
+        })
         this.draw()
       }
     },
     draw () {
       if (this.square) {
-        this.ctx.strokeRect(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
+        this.drawRectange(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
       } else if (this.circle) {
-        this.ctx.strokeArc(this.circ.startX, this.circ.startY, this.circ.w, this.circ.h)
+        // this.ctx.arc(this.circ.startX, this.circ.startY, this.circ.w, this.circ.h)
+        this.drawCircle(this.circ.startX, this.circ.startY, this.circ.endX, this.circ.endY)
       }
     },
     canvasLoad () {
@@ -150,7 +175,7 @@ export default {
           this.drawRectange(s.x, s.y, s.width, s.height)
         })
         this.shapesCreated.circle.forEach(s => {
-          this.drawCircle(s.x, s.y, s.radius)
+          this.drawCircle(s.x, s.y, s.ex, s.ey)
         })
       }, 200)
       console.log(this.shapesCreated)
@@ -178,18 +203,23 @@ export default {
       this.ctx.strokeRect(x, y, width, height)
       // this.ctx.stroke()
     },
-    drawCircle (x, y, radius) {
+    drawCircle (startX, startY, endX, endY) {
+      var radius = Math.sqrt(Math.pow((startX - endX), 2) + Math.pow((startY - endY), 2))
       this.ctx.beginPath()
-      this.ctx.arc(x, y, radius, 0, 2 * Math.PI)
+      this.ctx.arc(startX, startY, radius, 0, 2 * Math.PI, false)
       this.ctx.stroke()
     },
     saveShapes (x, y, w, h) {
-      // if (this.square) {
-      console.log('this is it')
-      this.shapesCreated.rectangle.push({x: x, y: y, width: w, height: h})
-      this.rect = {}
-      this.canvasLoad()
-      // } else if (this.circle) {
+      if (this.square) {
+        this.shapesCreated.rectangle.push({x: x, y: y, width: w, height: h})
+        this.rect = {}
+        this.canvasLoad()
+      } else if (this.circle) {
+        this.shapesCreated.circle.push({x: x, y: y, ex: w, ey: h})
+        console.log(this.shapesCreated.circle)
+        this.circ = {}
+        this.canvasLoad()
+      }
       //   this.shapesCreated.circle.push({x: x, y: y, radius: this.form.radius})
       //   // console.log(this.shapesCreated)
       //   this.canvasLoad()
