@@ -15,7 +15,7 @@
           <!-- <b-button size="md" variant="" @click='removeShape'>Remove</b-button> -->
       </div>
       <div>
-        <b-badge variant="dark">Resolution: {{canWidth}}x{{canHeight}}</b-badge>
+        <b-badge variant="dark">Resolution: {{c.width}}x{{c.height}}</b-badge>
       </div>
       </b-col>
     </b-row>
@@ -27,8 +27,6 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      canWidth: '',
-      canHeight: '',
       rect: {},
       circ: {},
       drag: false,
@@ -44,27 +42,24 @@ export default {
     }
   },
   mounted () {
-    this.c = document.getElementById('myCanvas')
-    this.ctx = this.c.getContext('2d')
-    this.img = new Image()
-    this.img.src = 'https://www.carnegiefoundation.org/wp-content/uploads/2015/03/bright-spots-800x600.png'
-    this.canWidth = this.img.width
-    this.canHeight = this.img.height
-    setTimeout(() => {
-      this.c.width = this.canWidth
-      this.c.height = this.canHeight
-      this.ctx.drawImage(this.img, 0, 0)
-      this.ctx.strokeStyle = '#ff2828'
-      this.ctx.lineWidth = 5
-      this.shapesCreated.rectangle.forEach(s => {
-        this.drawRectange(s.x, s.y, s.width, s.height)
-      })
-    }, 500)
+    this.canvasLoad()
     this.c.addEventListener('mousedown', this.mouseDown, false)
     this.c.addEventListener('mouseup', this.mouseUp, false)
     this.c.addEventListener('mousemove', this.mouseMove, false)
   },
   methods: {
+    canvasLoad () {
+      this.c = document.getElementById('myCanvas')
+      this.ctx = this.c.getContext('2d')
+      this.img = new Image()
+      this.img.src = 'https://www.carnegiefoundation.org/wp-content/uploads/2015/03/bright-spots-800x600.png'
+      this.c.width = this.img.width
+      this.c.height = this.img.height
+      this.ctx.drawImage(this.img, 0, 0)
+      this.ctx.strokeStyle = '#ff2828'
+      this.ctx.lineWidth = 5
+      this.shapesCreation()
+    },
     clear () {
       this.shapesCreated.rectangle = []
       this.shapesCreated.circle = []
@@ -94,28 +89,22 @@ export default {
       if (this.drag && this.square) {
         this.rect.w = (e.pageX - this.c.offsetLeft) - this.rect.startX
         this.rect.h = (e.pageY - this.c.offsetTop) - this.rect.startY
-        this.ctx.clearRect(0, 0, this.c.width, this.c.height)
-        this.ctx.drawImage(this.img, 0, 0)
-        this.shapesCreated.rectangle.forEach(s => {
-          this.drawRectange(s.x, s.y, s.width, s.height)
-        })
-        this.shapesCreated.circle.forEach(s => {
-          this.drawCircle(s.x, s.y, s.ex, s.ey)
-        })
-        this.draw()
       } else if (this.drag && this.circle) {
         this.circ.endX = e.pageX - this.c.offsetLeft
         this.circ.endY = e.pageY - this.c.offsetTop
-        this.ctx.clearRect(0, 0, this.c.width, this.c.height)
-        this.ctx.drawImage(this.img, 0, 0)
-        this.shapesCreated.rectangle.forEach(s => {
-          this.drawRectange(s.x, s.y, s.width, s.height)
-        })
-        this.shapesCreated.circle.forEach(s => {
-          this.drawCircle(s.x, s.y, s.ex, s.ey)
-        })
-        this.draw()
       }
+      this.ctx.clearRect(0, 0, this.c.width, this.c.height)
+      this.ctx.drawImage(this.img, 0, 0)
+      this.shapesCreation()
+      this.draw()
+    },
+    shapesCreation () {
+      this.shapesCreated.rectangle.forEach(s => {
+        this.drawRectange(s.x, s.y, s.width, s.height)
+      })
+      this.shapesCreated.circle.forEach(s => {
+        this.drawCircle(s.x, s.y, s.ex, s.ey)
+      })
     },
     draw () {
       if (this.square) {
@@ -123,21 +112,6 @@ export default {
       } else if (this.circle) {
         this.drawCircle(this.circ.startX, this.circ.startY, this.circ.endX, this.circ.endY)
       }
-    },
-    canvasLoad () {
-      this.c = document.getElementById('myCanvas')
-      this.ctx = this.c.getContext('2d')
-      this.img = new Image()
-      this.img.src = 'https://www.carnegiefoundation.org/wp-content/uploads/2015/03/bright-spots-800x600.png'
-      setTimeout(() => {
-        this.ctx.drawImage(this.img, 0, 0)
-        this.shapesCreated.rectangle.forEach(s => {
-          this.drawRectange(s.x, s.y, s.width, s.height)
-        })
-        this.shapesCreated.circle.forEach(s => {
-          this.drawCircle(s.x, s.y, s.ex, s.ey)
-        })
-      }, 200)
     },
     shapeSelector (shape) {
       if (shape === 'square') {
@@ -153,7 +127,6 @@ export default {
     },
     drawRectange (x, y, width, height) {
       this.ctx.strokeRect(x, y, width, height)
-      // this.ctx.stroke()
     },
     drawCircle (startX, startY, endX, endY) {
       var radius = Math.sqrt(Math.pow((startX - endX), 2) + Math.pow((startY - endY), 2))
@@ -164,21 +137,13 @@ export default {
     saveShapes (x, y, w, h) {
       if (this.square) {
         this.shapesCreated.rectangle.push({x: x, y: y, width: w, height: h})
-        this.rect = {}
-        this.canvasLoad()
       } else if (this.circle) {
         this.shapesCreated.circle.push({x: x, y: y, ex: w, ey: h})
-        this.circ = {}
-        this.canvasLoad()
       }
+      this.rect = {}
+      this.circ = {}
+      this.canvasLoad()
     }
-    // removeShape () {
-    //   this.shapesCreated.rectangle.pop()
-    //   console.log(this.shapesCreated.rectangle)
-    //   this.canvasLoad()
-    //   // var a = this.shapesCreated.rectangle[this.shapesCreated.rectangle.length - 1]
-    //   // this.ctx.clearRect(a.x, a.y, a.width, a.height)
-    // }
   }
 }
 </script>
